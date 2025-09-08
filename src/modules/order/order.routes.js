@@ -13,6 +13,7 @@ export const orderRoutes = Router();
 
 orderRoutes.get("/order/:id", verifyToken, getOrderById);
 orderRoutes.post("/order", verifyToken, createOrder);
+orderRoutes.delete("/order/:id", verifyToken, deleteOrder);
 orderRoutes.put("/admin/order/:id", verifyToken, isAdmin, updateOrder);
 orderRoutes.delete("/admin/order/:id", verifyToken, isAdmin, deleteOrder);
 orderRoutes.get("/admin/order", verifyToken, isAdmin, getAllOrders);

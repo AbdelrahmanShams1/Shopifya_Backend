@@ -5,22 +5,16 @@ const getOrderById = async (req, res) => {
   try {
     if (req.decoded.role !== "admin" && req.decoded.id !== req.params.id)
       return res.status(401).json({ message: "Unauthorized access" });
+
     const orders = await order
-      .findById(req.params.id)
+      .find({ user: req.params.id }) // هنا التعديل
       .populate("products.product");
-    if (!orders) {
+
+    if (!orders || orders.length === 0) {
       return res.status(404).json({ message: "Order not found" });
     }
-    res.status(200).json({ message: "Order retrieved successfully", orders });
-  } catch (error) {
-    res.status(500).json({ message: "Server error", error });
-  }
-};
 
-const getAllOrders = async (req, res) => {
-  try {
-    const orders = await order.find().populate("products.product");
-    res.status(200).json({ message: "Orders retrieved successfully", orders });
+    res.status(200).json({ message: "Order retrieved successfully", orders });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
   }
@@ -108,6 +102,15 @@ const createOrder = async (req, res) => {
   }
 };
 
+const getAllOrders = async (req, res) => {
+  try {
+    const orders = await order.find().populate("products.product");
+    res.status(200).json({ message: "Orders retrieved successfully", orders });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
 const updateOrder = async (req, res) => {
   try {
     const isAdmin = req.decoded.role === "admin";
@@ -137,6 +140,7 @@ const updateOrder = async (req, res) => {
 
 const deleteOrder = async (req, res) => {
   try {
+    console.log(req.params.id);
     const deletedOrder = await order.findByIdAndDelete(req.params.id);
     if (!deletedOrder) {
       return res.status(404).json({ message: "Order not found" });

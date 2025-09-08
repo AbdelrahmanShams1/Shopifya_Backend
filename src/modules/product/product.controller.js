@@ -18,12 +18,10 @@ const getProductById = async (req, res) => {
     if (!productFound) {
       return res.status(404).json({ message: "Product not found" });
     }
-    res
-      .status(200)
-      .json({
-        message: "Product retrieved successfully",
-        product: productFound,
-      });
+    res.status(200).json({
+      message: "Product retrieved successfully",
+      product: productFound,
+    });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
   }
@@ -35,10 +33,14 @@ const createProduct = async (req, res) => {
     if (existingProduct) {
       return res.status(400).json({ message: "Product already exists" });
     }
-    const newProduct = await product.insertOne(req.body);
-    res
-      .status(201)
-      .json({ message: "Product created successfully", newProduct });
+    const { _id, ...cleanBody } = req.body;
+
+    const newProduct = await product.create(cleanBody);
+
+    res.status(201).json({
+      message: "Product created successfully",
+      newProduct,
+    });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
   }

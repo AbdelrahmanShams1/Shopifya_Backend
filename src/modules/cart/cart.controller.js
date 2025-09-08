@@ -11,13 +11,15 @@ const getCarts = async (req, res) => {
 
 const getCartById = async (req, res) => {
   try {
-    const carts = await cart
-      .findById(req.params.id)
+    const cartData = await cart
+      .findOne({ user: req.params.id })
       .populate("products.product");
-    if (!carts) {
+
+    if (!cartData) {
       return res.status(404).json({ message: "Cart not found" });
     }
-    res.status(200).json({ message: "Cart retrieved successfully", carts });
+
+    res.status(200).json({ message: "Cart retrieved successfully", cartData });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
   }
@@ -51,7 +53,9 @@ const createCart = async (req, res) => {
       }
 
       await userCart.save();
-
+      userCart = await cart
+        .findOne({ user: user })
+        .populate("products.product");
       return res.status(200).json({
         message: "Product updated in cart",
         cart: userCart,
@@ -78,4 +82,29 @@ const deleteCart = async (req, res) => {
   }
 };
 
-export { getCarts, getCartById, createCart, deleteCart };
+const deleteProductFromCart = async (req, res) => {
+  try {
+    const { cartId, productId } = req.params;
+
+    const updatedCart = await cart
+      .findOneAndUpdate(
+        { _id: cartId },
+        { $pull: { products: { product: productId } } },
+        { new: true }
+      )
+      .populate("products.product");
+
+    if (!updatedCart) {
+      return res.status(404).json({ message: "Cart not found" });
+    }
+
+    res.status(200).json({
+      message: "Product removed successfully from cart",
+      cart: updatedCart,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+export { deleteProductFromCart, getCarts, getCartById, createCart, deleteCart };

@@ -7,7 +7,7 @@ const productModel = Schema(
     price: Number,
     category: {
       type: String,
-      enum: ["electronics", "clothing", "food"],
+      enum: ["electronics", "Fashion", "Home & Garden", "Sports", "Books"],
       default: "electronics",
     },
     stock: { type: Number, default: 0 },
